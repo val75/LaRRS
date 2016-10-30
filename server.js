@@ -15,7 +15,8 @@
 var
     http       = require( 'http'          ),
     express    = require( 'express'       ),
-    routes     = require( './lib/routes'  ),
+    //routes     = require( './lib/routes'  ),
+    routes     = require( './lib/routes_a' ),
     morgan     = require( 'morgan'        ),
     bodyParser = require( 'body-parser'   ),
     mongoose   = require( 'mongoose'      ),
@@ -23,7 +24,8 @@ var
     app        = express(),
     router     = express.Router(),
 
-    Bear       = require( './models/bear' ),
+    //Bear       = require( './models/bear' ),
+    Asset      = require( './models/asset' ),
 
     server     = http.createServer( app );
 
@@ -41,7 +43,7 @@ app.use( bodyParser.urlencoded( { extended: true } ) );
 app.use( bodyParser.json() );
 
 // Register our routes
-routes.configRoutes( app, router );
+routes.configRoutes( app, router, Asset );
 
 // define the root directory for static files as <current_directory>/public
 app.use( express.static( __dirname + '/public' ) );
