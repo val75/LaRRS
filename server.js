@@ -1,5 +1,5 @@
 /*
- * app.js - Simple Express server with logging
+ * server.js - Simple Express server with logging
  */
 
 /*jslint        node    : true, continue : true,
@@ -8,24 +8,30 @@
  regexp : true, sloppy  : true, vars     : false,
  white  : true
  */
-/*global */
+/*global larrs*/
 
 //---------------- BEGIN MODULE SCOPE VARIABLES --------------
 'use strict';
 var
     http       = require( 'http'          ),
     express    = require( 'express'       ),
-    //routes     = require( './lib/routes'  ),
-    routes     = require( './lib/routes_a' ),
-    morgan     = require( 'morgan'        ),
-    bodyParser = require( 'body-parser'   ),
-    mongoose   = require( 'mongoose'      ),
+
+    // Routes
+    asset_r    = require( './routes/asset_r'),
+    group_r    = require( './routes/group_r'),
+    free_r     = require( './routes/free_r' ),
+    reservation_r = require('./routes/reservation_r'),
+
+    morgan     = require( 'morgan'         ),
+    bodyParser = require( 'body-parser'    ),
+    mquery     = require( 'express-mquery' ),
+    mongoose   = require( 'mongoose'       ),
 
     app        = express(),
     router     = express.Router(),
 
-    //Bear       = require( './models/bear' ),
-    Asset      = require( './models/asset' ),
+    //Asset      = require( './models/asset' ),
+    Group      = require( './models/group' ),
 
     server     = http.createServer( app );
 
@@ -35,6 +41,9 @@ var
 
 mongoose.connect('mongodb://localhost/test');
 
+// Plugin express-mquery to mongoose
+mongoose.plugin(mquery.plugin);
+
 app.use( morgan('combined') );
 
 // Configure app to use bodyParser()
@@ -42,8 +51,17 @@ app.use( morgan('combined') );
 app.use( bodyParser.urlencoded( { extended: true } ) );
 app.use( bodyParser.json() );
 
+app.use(mquery.middleware({limit:10, maxLimit:50}));
+
 // Register our routes
-routes.configRoutes( app, router, Asset );
+group_r.configRoutes(       app, router );
+asset_r.configRoutes(       app, router );
+free_r.configRoutes(        app, router );
+reservation_r.configRoutes( app, router );
+
+
+// Initialize default group
+group_r.initGroups();
 
 // define the root directory for static files as <current_directory>/public
 app.use( express.static( __dirname + '/public' ) );

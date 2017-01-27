@@ -1,11 +1,56 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+/*
+ * asset.js - Mongoose model for assets
+ */
 
-var AssetSchema = new Schema ({
-    tag: String,
-    location: String,
-    group: String,
-    reserved: Boolean
-});
+/*jslint        node    : true, continue : true,
+ devel  : true, indent  : 2,    maxerr   : 50,
+ newcap : true, nomen   : true, plusplus : true,
+ regexp : true, sloppy  : true, vars     : false,
+ white  : true
+ */
+/*global */
+
+//---------------- BEGIN MODULE SCOPE VARIABLES --------------
+'use strict';
+
+var
+    mquery = require('express-mquery'),
+    mongoose = require('mongoose'),
+    Schema = mongoose.Schema,
+
+    locationEnum = {
+        values: ['SJC-Venice', 'LVS-Qual', 'LVS-Int'],
+        message: 'enum validator failed for `{PATH}` with value `{VALUE}`'
+    },
+
+    statesEnum = {
+        values: ['Healthy', 'Failed', 'Maintenance'],
+        message: 'enum validator failed for `{PATH}` with value `{VALUE}`'
+    },
+
+    AssetSchema = new Schema ({
+        tag: { type: String },
+        hostname: { type: String },
+        sku: { type: String , required: true },
+        vendor: { type: String , required: true },
+        location: { type: String, required: true, enum: locationEnum },
+        groupId: { type: Schema.Types.ObjectId, ref: 'Group', required: true },
+        status: { type: String, enum: statesEnum, default: 'Maintenance' }
+    });
+
+//----------------- END MODULE SCOPE VARIABLES ---------------
+
+
+//----------------- BEGIN MODULE CONFIGURATION ---------------
+
+// Plugin express-mquery to mongoose
+mongoose.plugin(mquery.plugin);
+
+//------------------ END MODULE CONFIGURATION ----------------
+
+
+//------------------- BEGIN PUBLIC METHODS -------------------
 
 module.exports = mongoose.model('Asset', AssetSchema);
+
+//------------------- END PUBLIC METHODS ---------------------
