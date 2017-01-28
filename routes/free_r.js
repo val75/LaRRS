@@ -45,15 +45,17 @@ checkAssetStatusByName = function ( hostname ) {
 //------------------- BEGIN PUBLIC METHODS -------------------
 configRoutes = function (app, router) {
 
-    // All of our routes will be prefixed with /api
-    app.use( '/api', router);
+    // REGISTER ROUTES
 
+    // All of our routes will be prefixed with /api
+    //app.use( '/api', router);
+
+    // Middleware to check asset hostname exists if request is a POST (add asset to Free collection)
     router.use( '/free', function (req, res, next) {
         if (req.method == 'POST') {
             if (!checkAssetStatusByName(req.body.hostname)) {
                 res.json( { messsage: "Found problems with asset while adding to Free table" } );
             }
-
             else {
                 next();
             }
@@ -87,16 +89,15 @@ configRoutes = function (app, router) {
             free_asset.save( function (err) {
                 if (err)
                     res.send(err);
-
                 else
                     res.json( { message: 'Asset added to free table!' } );
             })
 
         })
 
-    // Get all the free assets
-    // accessed at GET http://localhost:<port>/api/free
-    // Because we're using express-mquery, this accommodates search queries with '?'
+        // Get all the free assets
+        // accessed at GET http://localhost:<port>/api/free
+        // Because we're using express-mquery, this accommodates search queries with '?'
         .get(function (req, res) {
             Free
                 .mquery(req)
@@ -106,6 +107,34 @@ configRoutes = function (app, router) {
                     else
                         res.json(free);
                 });
+        });
+
+    // ========== Routes that end in /free/:free_id ==========
+    router.route('/free/:free_id')
+
+        // Get the free asset with that free_id
+        // accessed at GET http://localhost:<port>/api/free/:free_id
+        .get(function (req, res) {
+            Free.findById(req.params.free_id, function (err, free_asset) {
+                if (err)
+                    res.send(err);
+                else
+                    res.json(free_asset);
+            });
+        })
+
+        // Delete the asset with this free_id from free assets table
+        // accessed at DELETE http://localhost:<port>/api/free/:free_id
+        .delete(function (req, res) {
+            Free.remove({
+                _id: req.params.free_id
+            }, function (err) {
+                if (err)
+                    res.send(err);
+                else
+                    res.json( { message: 'Asset successfully removed from free list' } );
+                }
+            )
         });
 
 };

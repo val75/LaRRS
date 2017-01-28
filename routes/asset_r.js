@@ -15,6 +15,8 @@
 
 var
     Asset = require('../models/asset'),
+    Group = require('../models/group'),
+    Location = require('../models/locations'),
 
     configRoutes;
 //----------------- END MODULE SCOPE VARIABLES ---------------
@@ -25,34 +27,64 @@ var
 //------------------- BEGIN PUBLIC METHODS -------------------
 configRoutes = function ( app, router ) {
 
-    // Middleware to use for all requests
-    router.use( function (req, res, next) {
-        // do logging
-        console.log( 'Running API middleware.' );
-        // make sure we go to the next routes and don't stop here
-        next();
-    });
-
     router.use( '/assets', function (req, res, next) {
         //console.log('Method: ' + req.method );
         if (req.method == 'POST')
-            //console.log('Got POST');
-            if (!(req.hasOwnProperty('tag')))
-                console.log('POST has no tag property')
+            if (!(req.body.hasOwnProperty('tag')) && !(req.body.hasOwnProperty('hostname')))
+                console.log('POST has no tag or hostname property');
         next();
     });
 
-    // Test route to make sure everything is working
-    // accessed at GET http://localhost:<port>/api
-    router.get( '/', function ( req, res ) {
-        res.json( { message: 'You have reached LaRRS API.' } );
+    // Middleware to check group name and replace with group_id for POST requests
+    router.use('/assets', function (req, res, next) {
+        if (req.method == 'POST') {
+            console.log('--> Middleware: checking group for asset POST');
+
+            if (!req.body.hasOwnProperty('group')) {
+                console.log('Asset POST request has no group parameter');
+                res.status(500).send('No group parameter in POST request');
+            } else {
+                Group.findOne( { 'name' : req.body.group }, function (err, group) {
+                    if (err) {
+                        console.log('Error finding group %s : %s', req.body.group, err);
+                        res.status(500).send('Problem finding group ' + req.body.group);
+                    } else {
+                        req.group_id = group._id;
+                        next();
+                    }
+                });
+            }
+        } else
+            next();
+    });
+
+    // Middleware to check location and replace with location_id for POST requests
+    router.use('/assets', function (req, res, next) {
+        if (req.method == 'POST') {
+            console.log('--> Middleware: checking location for asset POST');
+
+            if (!req.body.hasOwnProperty('location')) {
+                console.log('Asset POST request has no location parameter');
+                res.status(500).send('No location parameter in POST request');
+            } else {
+                Location.findOne( { 'name' : req.body.location }, function (err, location) {
+                    if (err) {
+                        console.log('Error finding location %s : %s', req.body.location, err);
+                        res.status(500).send('Error finding location ' + req.body.location);
+                    } else if (!location) {
+                        console.log('Could not find location ' + req.body.location);
+                        res.status(500).send('Could not find location ' + req.body.location);
+                    } else {
+                        req.location_id = location._id;
+                        next();
+                    }
+                });
+            }
+        } else
+            next();
     });
 
     // REGISTER ROUTES
-
-    // All of our routes will be prefixed with /api
-    app.use( '/api', router);
-
 
     // ========== Routes that end in /assets ==========
     router.route('/assets')
@@ -75,10 +107,10 @@ configRoutes = function ( app, router ) {
             asset.vendor = req.body.vendor;
 
             // Set asset location (comes from the request)
-            asset.location = req.body.location;
+            asset.locationId = req.location_id;
 
             // Set the asset group ID (comes from the request)
-            asset.groupId = req.body.groupId;
+            asset.groupId = req.group_id;
 
             // save the asset and check for errors
             asset.save(function (err) {
@@ -97,7 +129,7 @@ configRoutes = function ( app, router ) {
         .get(function (req, res) {
             Asset
                 .mquery(req)
-                .populate('groupId', 'name')
+                .populate('groupId locationId', 'name')
                 .exec(function (err, assets) {
                     if (err)
                         res.send(err);
@@ -125,7 +157,7 @@ configRoutes = function ( app, router ) {
         .delete(function (req, res) {
             Asset.remove({
                 _id: req.params.asset_id
-            }, function (err, asset) {
+            }, function (err) {
                 if (err)
                     res.send(err);
 

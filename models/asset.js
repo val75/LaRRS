@@ -18,11 +18,6 @@ var
     mongoose = require('mongoose'),
     Schema = mongoose.Schema,
 
-    locationEnum = {
-        values: ['SJC-Venice', 'LVS-Qual', 'LVS-Int'],
-        message: 'enum validator failed for `{PATH}` with value `{VALUE}`'
-    },
-
     statesEnum = {
         values: ['Healthy', 'Failed', 'Maintenance'],
         message: 'enum validator failed for `{PATH}` with value `{VALUE}`'
@@ -33,7 +28,8 @@ var
         hostname: { type: String },
         sku: { type: String , required: true },
         vendor: { type: String , required: true },
-        location: { type: String, required: true, enum: locationEnum },
+        locationId: { type: Schema.Types.ObjectId, ref: 'Location', required: true },
+        //location: { type: String, required: true, enum: locationEnum },
         groupId: { type: Schema.Types.ObjectId, ref: 'Group', required: true },
         status: { type: String, enum: statesEnum, default: 'Maintenance' }
     });

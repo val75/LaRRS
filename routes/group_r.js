@@ -28,9 +28,7 @@ configRoutes = function ( app, router ) {
     // REGISTER ROUTES
 
     // All of our routes will be prefixed with /api
-    app.use( '/api', router);
-
-
+    //app.use( '/api', router);
 
     // ========== Routes that end in /groups ==========
     router.route('/groups')
@@ -40,7 +38,7 @@ configRoutes = function ( app, router ) {
         .post(function (req, res) {
             var group = new Group(); // create a new instance of the Group model
             group.name = req.body.name; // set the group name (comes from the request)
-            group.notes = (req.body.notes) ? req.body.notes : '' // set the group notes
+            group.notes = (req.body.notes) ? req.body.notes : ''; // set the group notes
 
             // save the group and check for errors
             group.save(function (err) {
@@ -84,7 +82,7 @@ configRoutes = function ( app, router ) {
         .put(function (req, res) {
             Group.findById(req.params.group_id, function (err, group) {
                 if (err)
-                    res.send(err)
+                    res.send(err);
 
                 if (req.body.name)
                     group.name = req.body.name;
@@ -131,7 +129,7 @@ initGroups = function () {
             });
         } else {
             console.log('Found DefaultGroup with _id ' + dgroup._id);
-        };
+        }
     });
 };
 
