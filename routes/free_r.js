@@ -47,9 +47,6 @@ configRoutes = function (app, router) {
 
     // REGISTER ROUTES
 
-    // All of our routes will be prefixed with /api
-    //app.use( '/api', router);
-
     // Middleware to check asset hostname exists if request is a POST (add asset to Free collection)
     router.use( '/free', function (req, res, next) {
         if (req.method == 'POST') {

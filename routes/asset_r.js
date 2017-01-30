@@ -18,6 +18,7 @@ var
     Group        = require( '../models/group'        ),
     Location     = require( '../models/locations'    ),
     Manufacturer = require( '../models/manufacturer' ),
+    Sku          = require( '../models/sku'          ),
 
     configRoutes;
 //----------------- END MODULE SCOPE VARIABLES ---------------
@@ -112,6 +113,33 @@ configRoutes = function ( app, router ) {
         }
     });
 
+    // Middleware to check SKU and replace with sku_id for POST requests
+    router.use('/assets', function (req, res, next) {
+        if (req.method == 'POST') {
+            console.log('--> Middleware: checking SKU for asset POST');
+
+            if(!req.body.hasOwnProperty('sku')) {
+                console.log('Asset POST request has no sku parameter');
+                res.status(500).send('No sku parameter in POST request');
+            } else {
+                Sku.findOne( { 'name' : req.body.sku }, function (err, sku) {
+                    if (err) {
+                        console.log('Error finding SKU %s : %s', req.body.sku, err);
+                        res.status(500).send('Error finding SKU ' + req.body.sku);
+                    } else if (!sku) {
+                        console.log('Could not find SKU ' + req.body.sku);
+                        res.status(500).send('Could not find SKU ' + req.body.sku);
+                    } else {
+                        req.sku_id = sku._id;
+                        next();
+                    }
+                });
+            }
+        } else {
+            next();
+        }
+    });
+
     // REGISTER ROUTES
 
     // ========== Routes that end in /assets ==========
@@ -128,16 +156,13 @@ configRoutes = function ( app, router ) {
             // Set the hostname (comes from the request)
             asset.hostname = req.body.hostname;
 
-            // Set the SKU (comes from the request)
-            asset.sku = req.body.sku;
+            // Set the SKU Id (comes from the request)
+            asset.sku = req.sku_id;
 
-            // Set the vendor (comes from the request)
-            //asset.vendor = req.body.vendor;
-
-            // Set the asset manufacturer (comes from the request)
+            // Set the asset manufacturer Id (comes from the request)
             asset.manufacturerId = req.manufacturer_id;
 
-            // Set asset location (comes from the request)
+            // Set asset location Id (comes from the request)
             asset.locationId = req.location_id;
 
             // Set the asset group ID (comes from the request)
@@ -160,7 +185,7 @@ configRoutes = function ( app, router ) {
         .get(function (req, res) {
             Asset
                 .mquery(req)
-                .populate('groupId locationId manufacturerId', 'name')
+                .populate('groupId locationId manufacturerId, skuId', 'name')
                 .exec(function (err, assets) {
                     if (err)
                         res.send(err);
@@ -192,7 +217,7 @@ configRoutes = function ( app, router ) {
                 if (err)
                     res.send(err);
 
-                res.json( { message: 'Successfully deleted!' } );
+                res.json( { message: 'Asset successfully deleted!' } );
             });
         });
 
@@ -238,6 +263,26 @@ configRoutes = function ( app, router ) {
             });
         });
 
+    // ========== Routes that end in /assets/:asset_id/sku/:skuId ==========
+    router.route('/assets/:asset_id/sku/:sku_id')
+
+        .put(function (req, res) {
+            Asset.findById(req.params.asset_id, function (err, asset) {
+                if (err)
+                    res.send(err);
+
+                asset.skuId = req.params.sku_id;
+
+                // update the asset
+                asset.save(function (err) {
+                    if (err)
+                        res.send(err);
+                    else
+                        res.json({message: 'Asset SKU updated.'});
+                });
+            });
+        });
+
     // ========== Routes that end in /assets/:asset_id/status/:status ==========
     router.route('/assets/:asset_id/status/:status')
 
@@ -255,7 +300,7 @@ configRoutes = function ( app, router ) {
                     if (err)
                         res.send(err);
                     else
-                        res.json( { message: 'Asset status updated' } );
+                        res.json( { message: 'Asset status updated.' } );
                 });
             });
         });
@@ -277,7 +322,7 @@ configRoutes = function ( app, router ) {
                     if (err)
                         res.send(err);
                     else
-                        res.json( { message: 'Asset hostname updated' } );
+                        res.json( { message: 'Asset hostname updated.' } );
                 });
             });
         });
@@ -299,9 +344,31 @@ configRoutes = function ( app, router ) {
                     if (err)
                         res.send(err);
                     else
-                        res.json( { message: 'Asset groupId updated' } );
+                        res.json( { message: 'Asset groupId updated.' } );
                 });
             });
+        });
+
+    // ========== Routes that end in /assets/:asset_id/remove/:property_to_remove ==========
+    router.route('/assets/:asset_id/remove/:property_to_remove')
+        .put(function (req, res) {
+            Asset.findById(req.params.asset_id, function (err, asset) {
+                if (err)
+                    res.send(err);
+                else {
+                    // Need to send 'strict' to false, otherwise not allowed
+                    // to set fields that are not in the schema anymore
+                    asset.set( req.params.property_to_remove, undefined, { strict: false} );
+
+                    // update the asset
+                    asset.save(function (err) {
+                        if (err)
+                            res.send(err);
+                        else
+                            res.json( { message: 'Asset updated.' } );
+                    });
+                }
+            })
         });
 };
 
