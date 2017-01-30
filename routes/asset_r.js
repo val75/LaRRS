@@ -14,9 +14,10 @@
 'use strict';
 
 var
-    Asset = require('../models/asset'),
-    Group = require('../models/group'),
-    Location = require('../models/locations'),
+    Asset        = require( '../models/asset'        ),
+    Group        = require( '../models/group'        ),
+    Location     = require( '../models/locations'    ),
+    Manufacturer = require( '../models/manufacturer' ),
 
     configRoutes;
 //----------------- END MODULE SCOPE VARIABLES ---------------
@@ -84,6 +85,33 @@ configRoutes = function ( app, router ) {
             next();
     });
 
+    // Middleware to check manufacturer and replace with manufacturer_id for POST requests
+    router.use('/assets', function (req, res, next) {
+        if (req.method == 'POST') {
+            console.log('--> Middleware: checking manufacturer for asset POST');
+
+            if(!req.body.hasOwnProperty('manufacturer')) {
+                console.log('Asset POST request has no manufacturer parameter');
+                res.status(500).send('No manufacturer parameter in POST request');
+            } else {
+                Manufacturer.findOne( { 'name' : req.body.manufacturer }, function (err, manufacturer) {
+                    if (err) {
+                        console.log('Error finding manufacturer %s : %s', req.body.manufacturer, err);
+                        res.status(500).send('Error finding manufacturer ' + req.body.manufacturer);
+                    } else if (!manufacturer) {
+                        console.log('Could not find manufacturer ' + req.body.manufacturer);
+                        res.status(500).send('Could not find manufacturer ' + req.body.manufacturer);
+                    } else {
+                        req.manufacturer_id = manufacturer._id;
+                        next();
+                    }
+                });
+            }
+        } else {
+            next();
+        }
+    });
+
     // REGISTER ROUTES
 
     // ========== Routes that end in /assets ==========
@@ -104,7 +132,10 @@ configRoutes = function ( app, router ) {
             asset.sku = req.body.sku;
 
             // Set the vendor (comes from the request)
-            asset.vendor = req.body.vendor;
+            //asset.vendor = req.body.vendor;
+
+            // Set the asset manufacturer (comes from the request)
+            asset.manufacturerId = req.manufacturer_id;
 
             // Set asset location (comes from the request)
             asset.locationId = req.location_id;
@@ -129,7 +160,7 @@ configRoutes = function ( app, router ) {
         .get(function (req, res) {
             Asset
                 .mquery(req)
-                .populate('groupId locationId', 'name')
+                .populate('groupId locationId manufacturerId', 'name')
                 .exec(function (err, assets) {
                     if (err)
                         res.send(err);
@@ -165,24 +196,44 @@ configRoutes = function ( app, router ) {
             });
         });
 
-    // ========== Routes that end in /assets/:asset_id/location/:location ==========
-    router.route('/assets/:asset_id/location/:location')
+    // ========== Routes that end in /assets/:asset_id/location/:locationId ==========
+    router.route('/assets/:asset_id/location/:location_id')
 
-        // Update the location of the asset with this id
-        // accessed at PUT http://localhost:<port>/api/assets/:asset_id/location/:location
+        // Update the location ID of the asset with this id
+        // accessed at PUT http://localhost:<port>/api/assets/:asset_id/location/:location_id
         .put(function (req, res) {
             Asset.findById(req.params.asset_id, function (err, asset) {
                 if (err)
                     res.send(err);
 
-                asset.location = req.params.location;
+                asset.locationId = req.params.location_id;
 
                 // update the asset
                 asset.save(function (err) {
                     if (err)
                         res.send(err);
                     else
-                        res.json( { message: 'Asset location updated' } );
+                        res.json( { message: 'Asset location updated.' } );
+                });
+            });
+        });
+
+    // ========== Routes that end in /assets/:asset_id/manufacturer/:manufacturerId ==========
+    router.route('/assets/:asset_id/manufacturer/:manufacturer_id')
+
+        .put(function (req, res) {
+            Asset.findById(req.params.asset_id, function (err, asset) {
+                if (err)
+                    res.send(err);
+
+                asset.manufacturerId = req.params.manufacturer_id;
+
+                // update the asset
+                asset.save(function (err) {
+                    if (err)
+                        res.send(err);
+                    else
+                        res.json({message: 'Asset manufacturer updated.'});
                 });
             });
         });
@@ -252,7 +303,6 @@ configRoutes = function ( app, router ) {
                 });
             });
         });
-
 };
 
 module.exports = { configRoutes : configRoutes };

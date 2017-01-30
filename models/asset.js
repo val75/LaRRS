@@ -25,13 +25,13 @@ var
     },
 
     AssetSchema = new Schema ({
-        tag:        { type: String },
-        hostname:   { type: String },
-        sku:        { type: String , required: true },
-        vendor:     { type: String , required: true },
-        locationId: { type: Schema.Types.ObjectId, ref: 'Location', required: true },
-        groupId:    { type: Schema.Types.ObjectId, ref: 'Group', required: true },
-        status:     { type: String, enum: statesEnum, default: 'Maintenance' }
+        tag:            { type: String },
+        hostname:       { type: String },
+        sku:            { type: String , required: true },
+        manufacturerId: { type: Schema.Types.ObjectId, ref: 'Manufacturer', required: true },
+        locationId:     { type: Schema.Types.ObjectId, ref: 'Location', required: true },
+        groupId:        { type: Schema.Types.ObjectId, ref: 'Group', required: true },
+        status:         { type: String, enum: statesEnum, default: 'Maintenance' }
     });
 
 //----------------- END MODULE SCOPE VARIABLES ---------------
