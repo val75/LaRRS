@@ -27,9 +27,6 @@ configRoutes = function ( app, router ) {
 
     // REGISTER ROUTES
 
-    // All of our routes will be prefixed with /api
-    //app.use( '/api', router);
-
     // ========== Routes that end in /groups ==========
     router.route('/groups')
 

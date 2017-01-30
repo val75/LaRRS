@@ -60,7 +60,7 @@ configRoutes = function ( app, router ) {
                 });
         });
 
-    // ========== Routes that end in /locations/:location:id ==========
+    // ========== Routes that end in /locations/:location_id ==========
     router.route('/locations/:location_id')
 
         // Get the location with this id

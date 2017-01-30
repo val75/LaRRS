@@ -89,8 +89,8 @@ configRoutes = function ( app, router ) {
     // ========== Routes that end in /assets ==========
     router.route('/assets')
 
-    // Create an asset
-    // accessed at POST http://localhost:<port>/api/assets
+        // Create an asset
+        // accessed at POST http://localhost:<port>/api/assets
         .post(function (req, res) {
             var asset = new Asset();  // create a new instance of the Asset model
 
@@ -142,8 +142,8 @@ configRoutes = function ( app, router ) {
     // ========== Routes that end in /assets/:asset_id ==========
     router.route('/assets/:asset_id')
 
-    // Get the asset with that id
-    // accessed at GET http://localhost:8080/api/assets/:asset_id
+        // Get the asset with that id
+        // accessed at GET http://localhost:8080/api/assets/:asset_id
         .get(function (req, res) {
             Asset.findById(req.params.asset_id, function (err, asset) {
                 if (err)

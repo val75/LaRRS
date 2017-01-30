@@ -14,12 +14,13 @@
 'use strict';
 
 var
-    mquery = require('express-mquery'),
-    mongoose = require ('mongoose'),
-    Schema = mongoose.Schema,
+    mquery   = require( 'express-mquery' ),
+    mongoose = require( 'mongoose'       ),
+
+    Schema   = mongoose.Schema,
 
     LocationsSchema = new Schema({
-        name: { type: String, required: true },
+        name:  { type: String, required: true },
         notes: { type: String }
     });
 

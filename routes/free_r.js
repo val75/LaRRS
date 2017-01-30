@@ -14,8 +14,8 @@
 'use strict';
 
 var
-    Free = require('../models/free'),
-    Asset = require('../models/asset'),
+    Free  = require( '../models/free'  ),
+    Asset = require( '../models/asset' ),
 
     checkAssetStatusByName,
     configRoutes;
@@ -55,13 +55,10 @@ configRoutes = function (app, router) {
         if (req.method == 'POST') {
             if (!checkAssetStatusByName(req.body.hostname)) {
                 res.json( { messsage: "Found problems with asset while adding to Free table" } );
-            }
-            else {
+            } else {
                 next();
             }
-        }
-
-        else {
+        } else {
             next();
         }
     });

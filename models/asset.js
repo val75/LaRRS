@@ -14,8 +14,9 @@
 'use strict';
 
 var
-    mquery = require('express-mquery'),
-    mongoose = require('mongoose'),
+    mquery   = require( 'express-mquery' ),
+    mongoose = require( 'mongoose'       ),
+
     Schema = mongoose.Schema,
 
     statesEnum = {
@@ -24,14 +25,13 @@ var
     },
 
     AssetSchema = new Schema ({
-        tag: { type: String },
-        hostname: { type: String },
-        sku: { type: String , required: true },
-        vendor: { type: String , required: true },
+        tag:        { type: String },
+        hostname:   { type: String },
+        sku:        { type: String , required: true },
+        vendor:     { type: String , required: true },
         locationId: { type: Schema.Types.ObjectId, ref: 'Location', required: true },
-        //location: { type: String, required: true, enum: locationEnum },
-        groupId: { type: Schema.Types.ObjectId, ref: 'Group', required: true },
-        status: { type: String, enum: statesEnum, default: 'Maintenance' }
+        groupId:    { type: Schema.Types.ObjectId, ref: 'Group', required: true },
+        status:     { type: String, enum: statesEnum, default: 'Maintenance' }
     });
 
 //----------------- END MODULE SCOPE VARIABLES ---------------
