@@ -46,6 +46,9 @@ configRoutes = function ( app, router ) {
             })
         })
 
+        // Get all asset manufacturers
+        // accessed at GET http://localhost:<port>/api/manufacturers
+        // Because we're using express-mquery, this accommodates search queries with '?'
         .get( function (req, res) {
             Manufacturer
                 .mquery(req)

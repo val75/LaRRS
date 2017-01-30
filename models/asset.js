@@ -28,6 +28,7 @@ var
         tag:            { type: String },
         hostname:       { type: String },
         sku:            { type: String , required: true },
+        skuId:          { type: Schema.Types.ObjectId, ref: 'Sku', required: true },
         manufacturerId: { type: Schema.Types.ObjectId, ref: 'Manufacturer', required: true },
         locationId:     { type: Schema.Types.ObjectId, ref: 'Location', required: true },
         groupId:        { type: Schema.Types.ObjectId, ref: 'Group', required: true },
