@@ -19,24 +19,17 @@ var
 
     Schema = mongoose.Schema,
 
-    statesEnum = {
-        values: ['Healthy', 'Failed', 'Maintenance'],
-        message: 'enum validator failed for `{PATH}` with value `{VALUE}`'
-    },
-
     AssetSchema = new Schema ({
         tag:            { type: String },
         hostname:       { type: String },
-        skuId:          { type: Schema.Types.ObjectId, ref: 'Sku', required: true },
+        skuId:          { type: Schema.Types.ObjectId, ref: 'Sku',          required: true },
         manufacturerId: { type: Schema.Types.ObjectId, ref: 'Manufacturer', required: true },
-        locationId:     { type: Schema.Types.ObjectId, ref: 'Location', required: true },
-        groupId:        { type: Schema.Types.ObjectId, ref: 'Group', required: true },
-        //statusId:       { type: Schema.Types.ObjectId, ref: 'Status', required: true }
-        status:         { type: String, enum: statesEnum, default: 'Maintenance' }
+        locationId:     { type: Schema.Types.ObjectId, ref: 'Location',     required: true },
+        groupId:        { type: Schema.Types.ObjectId, ref: 'Group',        required: true },
+        statusId:       { type: Schema.Types.ObjectId, ref: 'Status',       required: true }
     });
 
 //----------------- END MODULE SCOPE VARIABLES ---------------
-
 
 //----------------- BEGIN MODULE CONFIGURATION ---------------
 
@@ -44,7 +37,6 @@ var
 mongoose.plugin(mquery.plugin);
 
 //------------------ END MODULE CONFIGURATION ----------------
-
 
 //------------------- BEGIN PUBLIC METHODS -------------------
 

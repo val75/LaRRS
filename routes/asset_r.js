@@ -19,6 +19,7 @@ var
     Location     = require( '../models/locations'    ),
     Manufacturer = require( '../models/manufacturer' ),
     Sku          = require( '../models/sku'          ),
+    Status       = require( '../models/status'       ),
 
     configRoutes;
 //----------------- END MODULE SCOPE VARIABLES ---------------
@@ -140,6 +141,44 @@ configRoutes = function ( app, router ) {
         }
     });
 
+    // Middleware to check status and replace with status_id for POST requests
+    router.use('/assets', function (req, res, next) {
+        if (req.method == 'POST') {
+            console.log('--> Middleware: checking status for asset POST');
+
+            if(!req.body.hasOwnProperty('status')) {
+                console.log('Asset POST request has no status parameter, defaulting to Maintenance');
+                Status.findOne( { 'name' : 'Maintenance' }, function (err, status_rec) {
+                    if (err) {
+                        console.log('Error finding Maintenance status record: ' + err);
+                        res.status(500).send('Error finding Maintenance status record');
+                    } else if (!status_rec) {
+                        console.log('Could not find Maintenance status record');
+                        res.status(500).send('Could not find Maintenance status record');
+                    } else {
+                        req.status_id = status_rec._id;
+                        next();
+                    }
+                });
+            } else {
+                Status.findOne( { 'name' : req.body.status }, function (err, status_rec) {
+                    if (err) {
+                        console.log('Error finding status record %s : %s', req.body.status, err);
+                        res.status(500).send('Error finding status record ' + req.body.status);
+                    } else if (!status_rec) {
+                        console.log('Could not find status record ' + req.body.status);
+                        res.status(500).send('Could not find SKU ' + req.body.status);
+                    } else {
+                        req.status_id = status_rec._id;
+                        next();
+                    }
+                });
+            }
+        } else {
+            next();
+        }
+    });
+
     // REGISTER ROUTES
 
     // ========== Routes that end in /assets ==========
@@ -168,14 +207,15 @@ configRoutes = function ( app, router ) {
             // Set the asset group ID (comes from the request)
             asset.groupId = req.group_id;
 
+            // Set the asset status ID (comes from the request, or defaults to Maintenance)
+            asset.statusId = req.status_id;
+
             // save the asset and check for errors
             asset.save(function (err) {
                 if (err)
                     res.send(err);
-
                 else
                     res.json( { message: 'Asset created!' } );
-
             });
         })
 
@@ -185,7 +225,7 @@ configRoutes = function ( app, router ) {
         .get(function (req, res) {
             Asset
                 .mquery(req)
-                .populate('groupId locationId manufacturerId, skuId', 'name')
+                .populate('groupId locationId manufacturerId skuId statusId', 'name')
                 .exec(function (err, assets) {
                     if (err)
                         res.send(err);
@@ -193,7 +233,6 @@ configRoutes = function ( app, router ) {
                         res.json(assets);
                 });
         });
-
 
     // ========== Routes that end in /assets/:asset_id ==========
     router.route('/assets/:asset_id')
@@ -283,28 +322,6 @@ configRoutes = function ( app, router ) {
             });
         });
 
-    // ========== Routes that end in /assets/:asset_id/status/:status ==========
-    router.route('/assets/:asset_id/status/:status')
-
-        // Update the status of the asset with this id
-        // accessed at PUT http://localhost:<port>/api/assets/:asset_id/status/:status
-        .put(function (req, res) {
-            Asset.findById(req.params.asset_id, function (err, asset) {
-                if (err)
-                    res.send(err);
-
-                asset.status = req.params.status;
-
-                // update the asset
-                asset.save(function (err) {
-                    if (err)
-                        res.send(err);
-                    else
-                        res.json( { message: 'Asset status updated.' } );
-                });
-            });
-        });
-
     // ========== Routes that end in /assets/:asset_id/hostname/:hostname ==========
     router.route('/assets/:asset_id/hostname/:hostname')
 
@@ -328,10 +345,10 @@ configRoutes = function ( app, router ) {
         });
 
     // ========== Routes that end in /assets/:asset_id/groupId/:groupId ==========
-    router.route('/assets/:asset_id/groupId/:groupId')
+    router.route('/assets/:asset_id/group/:groupId')
 
         // Update the groupId of the asset with this id
-        // accessed at PUT http://localhost:<port>/api/assets/:asset_id/groupId/:groupId
+        // accessed at PUT http://localhost:<port>/api/assets/:asset_id/group/:groupId
         .put(function (req, res) {
             Asset.findById(req.params.asset_id, function (err, asset) {
                 if (err)
@@ -344,7 +361,29 @@ configRoutes = function ( app, router ) {
                     if (err)
                         res.send(err);
                     else
-                        res.json( { message: 'Asset groupId updated.' } );
+                        res.json( { message: 'Asset group updated.' } );
+                });
+            });
+        });
+
+    // ========== Routes that end in /assets/:asset_id/status/:statusId ==========
+    router.route('/assets/:asset_id/status/:statusId')
+
+        // Update the statusId of the asset with this id
+        // accessed at PUT http://localhost:<port>/api/assets/:asset_id/status/:statusId
+        .put(function (req, res) {
+            Asset.findById(req.params.asset_id, function (err, asset) {
+                if (err)
+                    res.send(err);
+
+                asset.statusId = req.params.statusId;
+
+                // update the asset
+                asset.save(function (err) {
+                    if (err)
+                        res.send(err);
+                    else
+                        res.json( { message: 'Asset status updated.' } );
                 });
             });
         });
