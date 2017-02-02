@@ -21,6 +21,7 @@ var
     locations_r    = require( './routes/locations_r'    ),
     manufacturer_r = require( './routes/manufacturer_r' ),
     sku_r          = require( './routes/sku_r'          ),
+    status_r       = require( './routes/status_r'       ),
     asset_r        = require( './routes/asset_r'        ),
     group_r        = require( './routes/group_r'        ),
     free_r         = require( './routes/free_r'         ),
@@ -61,6 +62,7 @@ api_root_r.configRoutes(     app, router );
 locations_r.configRoutes(    app, router );
 manufacturer_r.configRoutes( app, router );
 sku_r.configRoutes(          app, router );
+status_r.configRoutes(       app, router );
 group_r.configRoutes(        app, router );
 asset_r.configRoutes(        app, router );
 free_r.configRoutes(         app, router );

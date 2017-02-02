@@ -1,5 +1,5 @@
 /*
- * sku_r.js - Routing for asset SKUs
+ * status_r.js - Routing for asset status
  */
 
 /*jslint        node    : true, continue : true,
@@ -14,9 +14,10 @@
 'use strict';
 
 var
-    Sku = require( '../models/sku' ),
+    Status = require( '../models/status' ),
 
     configRoutes;
+
 //----------------- END MODULE SCOPE VARIABLES ---------------
 
 //------------------- BEGIN PUBLIC METHODS -------------------
@@ -26,87 +27,87 @@ configRoutes = function ( app, router ) {
     // REGISTER ROUTES
 
     // ========== Routes that end in /skus ==========
-    router.route('/skus')
+    router.route('/status')
 
-        // Create/add new asset SKU
-        // accessed at POST http://localhost:<port>/api/skus
+    // Create/add new asset status
+    // accessed at POST http://localhost:<port>/api/status
         .post( function (req, res) {
-            var sku = new Sku();
+            var status = new Status();
 
-            sku.name = req.body.name;
+            status.name = req.body.name;
 
-            sku.notes = req.body.notes;
+            status.notes = req.body.notes;
 
-            // save SKU and check for errors
-            sku.save( function (err) {
+            // save status and check for errors
+            status.save( function (err) {
                 if (err)
                     res.send(err);
                 else
-                    res.json( { message : 'New SKU added.' } );
+                    res.json( { message : 'New status added.' } );
             })
         })
 
-        // Get all asset SKUs
-        // accessed at GET http://localhost:<port>/api/skus
+        // Get all possible asset status names
+        // accessed at GET http://localhost:<port>/api/status
         // Because we're using express-mquery, this accommodates search queries with '?'
         .get( function (req, res) {
-            Sku
+            Status
                 .mquery(req)
-                .exec( function (err, skus ) {
+                .exec( function (err, status ) {
                     if (err)
                         res.send(err);
                     else
-                        res.json(skus);
+                        res.json(status);
                 });
         });
 
-    // ========== Routes that end in /skus/:sku_id ==========
-    router.route('/skus/:sku_id')
+    // ========== Routes that end in /status/:status_id ==========
+    router.route('/status/:status_id')
 
-    // Get the SKU with this id
-    // accessed at GET http://localhost:<port>/api/skus/:sku_id
+        // Get the status with this id
+        // accessed at GET http://localhost:<port>/api/status/:status_id
         .get( function (req, res) {
-            Sku.findById(req.params.sku_id, function (err, sku) {
+            Status.findById(req.params.status_id, function (err, status) {
                 if (err)
                     res.send(err);
                 else
-                    res.json(sku);
+                    res.json(status);
             });
         })
 
-        // Update the SKU with this id
-        // accessed at PUT http://localhost:<port>/api/skus/:sku_id
+        // Update the status with this id
+        // accessed at PUT http://localhost:<port>/api/status/:status_id
         .put( function (req, res) {
-            Sku.findById(req.params.sku_id, function (err, sku) {
+            Status.findById(req.params.status_id, function (err, status) {
                 if (err)
                     res.send(err);
                 else {
                     if (req.body.name)
-                        sku.name = req.body.name;
+                        status.name = req.body.name;
 
                     if (req.body.notes)
-                        sku.notes = req.body.notes;
+                        status.notes = req.body.notes;
 
-                    sku.save( function (err) {
+                    status.save( function (err) {
                         if (err)
                             res.send(err);
                         else
-                            res.json( { message : 'SKU updated.' } );
+                            res.json( { message : 'Status record updated.' } );
                     });
                 }
             });
         })
 
-        // Delete the SKU with this id
-        // accessed at DELETE http://localhost:<port>/api/skus/:sku_id
+        // Delete the status with this id
+        // accessed at DELETE http://localhost:<port>/api/status/:status_id
         .delete( function (req, res) {
-            Sku.remove({
-                _id: req.params.sku_id
+            Status.remove({
+                _id: req.params.status_id
             }, function (err) {
                 if (err)
                     res.send(err);
                 else
-                    res.json( { message : 'SKU successfully deleted.' } );
+                    res.json( { message : 'Status record successfully deleted.' } );
             });
         });
 };
