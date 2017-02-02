@@ -20,8 +20,9 @@ var
     Schema = mongoose.Schema,
 
     SkuSchema = new Schema ({
-        name:  { type: String, required: true},
-        notes: { type: String }
+        name:    { type: String, required: true },
+        hwmodel: { type: String                 },
+        notes:   { type: String                 }
     });
 
 //----------------- END MODULE SCOPE VARIABLES ---------------

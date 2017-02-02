@@ -21,7 +21,7 @@ var
 
     StatusSchema = new Schema ({
         name:  { type: String, required: true},
-        notes: { type: String }
+        notes: { type: String                }
     });
 
 //----------------- END MODULE SCOPE VARIABLES ---------------

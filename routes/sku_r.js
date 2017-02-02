@@ -35,6 +35,8 @@ configRoutes = function ( app, router ) {
 
             sku.name = req.body.name;
 
+            sku.hwmodel = req.body.hwmodel;
+
             sku.notes = req.body.notes;
 
             // save SKU and check for errors
@@ -83,6 +85,9 @@ configRoutes = function ( app, router ) {
                 else {
                     if (req.body.name)
                         sku.name = req.body.name;
+
+                    if (req.body.hwmodel)
+                        sku.hwmodel = req.body.hwmodel;
 
                     if (req.body.notes)
                         sku.notes = req.body.notes;
