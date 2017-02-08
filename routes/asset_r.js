@@ -132,6 +132,7 @@ configRoutes = function ( app, router ) {
                         res.status(500).send('Could not find SKU ' + req.body.sku);
                     } else {
                         req.sku_id = sku._id;
+                        //console.log('==== ' + req.sku_id);
                         next();
                     }
                 });
@@ -196,7 +197,7 @@ configRoutes = function ( app, router ) {
             asset.hostname = req.body.hostname;
 
             // Set the SKU Id (comes from the request)
-            asset.sku = req.sku_id;
+            asset.skuId = req.sku_id;
 
             // Set the asset manufacturer Id (comes from the request)
             asset.manufacturerId = req.manufacturer_id;
@@ -258,6 +259,27 @@ configRoutes = function ( app, router ) {
 
                 res.json( { message: 'Asset successfully deleted!' } );
             });
+        });
+
+    // ========== Routes that end in /assets/:asset_id/reserved/:res_status ==========
+    router.route('/assets/:asset_id/reserved/:res_status')
+
+        .put(function (req, res) {
+            Asset.findById(req.params.asset_id, function (err, asset){
+                if (err)
+                    res.status(404).send(err);
+                else {
+                    asset.reserved = req.params.res_status;
+
+                    // update the asset
+                    asset.save(function (err) {
+                        if (err)
+                            res.status(404).send(err);
+                        else
+                            res.json( { message: 'Asset reserved status updated.' } );
+                    })
+                }
+            })
         });
 
     // ========== Routes that end in /assets/:asset_id/location/:locationId ==========

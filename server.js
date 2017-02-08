@@ -25,6 +25,7 @@ var
     asset_r        = require( './routes/asset_r'        ),
     group_r        = require( './routes/group_r'        ),
     free_r         = require( './routes/free_r'         ),
+    free_assets_r  = require( './routes/free_assets_r'  ),
     reservation_r  = require( './routes/reservation_r'  ),
 
     morgan         = require( 'morgan'         ),
@@ -66,6 +67,7 @@ status_r.configRoutes(       app, router );
 group_r.configRoutes(        app, router );
 asset_r.configRoutes(        app, router );
 free_r.configRoutes(         app, router );
+free_assets_r.configRoutes(  app, router );
 reservation_r.configRoutes(  app, router );
 
 // Initialize default group

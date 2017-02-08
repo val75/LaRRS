@@ -26,7 +26,9 @@ var
         manufacturerId: { type: Schema.Types.ObjectId, ref: 'Manufacturer', required: true },
         locationId:     { type: Schema.Types.ObjectId, ref: 'Location',     required: true },
         groupId:        { type: Schema.Types.ObjectId, ref: 'Group',        required: true },
-        statusId:       { type: Schema.Types.ObjectId, ref: 'Status',       required: true }
+        statusId:       { type: Schema.Types.ObjectId, ref: 'Status',       required: true },
+
+        reserved:       { type: Boolean,               default: false,      required: true}
     });
 
 //----------------- END MODULE SCOPE VARIABLES ---------------

@@ -1,5 +1,5 @@
 /*
- * reservations.js - Mongoose model for asset reservation
+ * reservations.js - Mongoose model for asset reservation table
  */
 
 /*jslint        node    : true, continue : true,
@@ -14,16 +14,27 @@
 'use strict';
 
 var
-    mongoose = require('mongoose'),
+    mquery   = require( 'express-mquery' ),
+    mongoose = require( 'mongoose'       ),
+
     Schema = mongoose.Schema,
 
     ReservationSchema = new Schema ({
-        asset_tag: { type: String, required: true },
-        start_time: { type: Date, required: true },
-        user: { type: String, required: true }
+        assetId:    { type: Schema.Types.ObjectId, ref: 'Asset', required: true },
+        user:       { type: String,                              required: true },
+
+        start_time: { type: Date, default: Date.now                             },
+        end_time:   { type: Date                                                }
     });
 
 //----------------- END MODULE SCOPE VARIABLES ---------------
+
+//----------------- BEGIN MODULE CONFIGURATION ---------------
+
+// Plugin express-mquery to mongoose
+mongoose.plugin(mquery.plugin);
+
+//------------------ END MODULE CONFIGURATION ----------------
 
 //------------------- BEGIN PUBLIC METHODS -------------------
 
