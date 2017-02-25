@@ -1,5 +1,5 @@
 /*
- * free.js - Mongoose model for free assets table
+ * free_assets.js - Mongoose model for free assets table
  */
 
 /*jslint        node    : true, continue : true,
@@ -19,13 +19,12 @@ var
 
     Schema = mongoose.Schema,
 
-    FreeSchema = new Schema ({
-        asset:     { type: String },
-        hostname:  { type: String },
-        sku:       { type: String },
-        vendor:    { type: String },
-        location:  { type: String },
-        group:     { type: String }
+    FreeAssetsSchema = new Schema ({
+        assetId:        { type: Schema.Types.ObjectId, ref: 'Asset',        required: true },
+        skuId:          { type: Schema.Types.ObjectId, ref: 'Sku',          required: true },
+        locationId:     { type: Schema.Types.ObjectId, ref: 'Location',     required: true },
+        manufacturerId: { type: Schema.Types.ObjectId, ref: 'Manufacturer', required: true },
+        groupId:        { type: Schema.Types.ObjectId, ref: 'Group',        required: true }
     });
 
 //----------------- END MODULE SCOPE VARIABLES ---------------
@@ -39,6 +38,6 @@ mongoose.plugin(mquery.plugin);
 
 //------------------- BEGIN PUBLIC METHODS -------------------
 
-module.exports = mongoose.model('Free', FreeSchema);
+module.exports = mongoose.model('FreeAsset', FreeAssetsSchema);
 
 //------------------- END PUBLIC METHODS ---------------------

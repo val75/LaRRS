@@ -15,6 +15,7 @@
 var
     http           = require( 'http'          ),
     express        = require( 'express'       ),
+    path           = require( 'path'          ),
 
     // Routes
     api_root_r     = require( './routes/api_root_r'     ),
@@ -55,6 +56,10 @@ app.use( bodyParser.urlencoded( { extended: true } ) );
 app.use( bodyParser.json() );
 
 app.use(mquery.middleware({limit:10, maxLimit:50}));
+
+app.use('/', function (req, res) {
+    res.sendFile(path.join( __dirname + '/public/larrs.html' ))
+});
 
 app.use('/api', router);
 

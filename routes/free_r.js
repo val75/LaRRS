@@ -60,7 +60,7 @@ configRoutes = function (app, router) {
         }
     });
 
-    // ========== Routes that end in /assets ==========
+    // ========== Routes that end in /free ==========
     router.route('/free')
 
         // Mark an asset as free and add it to the free table
@@ -68,7 +68,7 @@ configRoutes = function (app, router) {
         .post(function (req, res) {
             var free_asset = new Free();
 
-            free_asset.asset_tag = req.body.asset_tag;
+            free_asset.asset = req.body.asset;
 
             free_asset.hostname = req.body.hostname;
 
